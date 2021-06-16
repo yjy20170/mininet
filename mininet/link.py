@@ -238,7 +238,7 @@ class TCIntf( Intf ):
     bwParamMax = 1000
 
     def bwCmds( self, bw=None, speedup=0, use_hfsc=False, use_tbf=False,
-                latency_ms=None, enable_ecn=False, enable_red=False ):
+                latency_ms=None, enable_ecn=False, enable_red=False, is_change=False ):
         "Return tc commands to set bandwidth"
 
         cmds, parent = [], ' root '
@@ -266,9 +266,13 @@ class TCIntf( Intf ):
                           'rate %fMbit burst 15000 latency %fms' %
                           ( bw, latency_ms ) ]
             else:
-                cmds += [ '%s qdisc add dev %s root handle 5:0 htb default 1',
-                          '%s class add dev %s parent 5:0 classid 5:1 htb ' +
-                          'rate %fMbit burst 15k' % bw ]
+                if not is_change:
+                    cmds += [ '%s qdisc add dev %s root handle 5:0 htb default 1',
+                              '%s class add dev %s parent 5:0 classid 5:1 htb ' +
+                              'rate %fMbit burst 15k' % bw ]
+                else:
+                    cmds += [ '%s class change dev %s parent 5:0 classid 5:1 htb ' +
+                              'rate %fMbit burst 15k' % bw ]
             parent = ' parent 5:1 '
 
             # ECN or RED
@@ -287,6 +291,7 @@ class TCIntf( Intf ):
                           'bandwidth %fmbit probability 1' % bw ]
                 parent = ' parent 6: '
         return cmds, parent
+
 
     @staticmethod
     def delayCmds( parent, delay=None, jitter=None,
@@ -314,6 +319,7 @@ class TCIntf( Intf ):
         "Execute tc command for our interface"
         c = cmd % (tc, self)  # Add in tc command and our name
         debug(" *** executing command: %s\n" % c)
+        # print("TCCOMMAND:"+c)
         return self.cmd( c )
 
     # pylint: disable=arguments-differ
@@ -361,6 +367,7 @@ class TCIntf( Intf ):
 
         # Clear existing configuration
         tcoutput = self.tc( '%s qdisc show dev %s' )
+        # print("[%s] %s"%(self,tcoutput))
         if "priomap" not in tcoutput and "noqueue" not in tcoutput:
             cmds = [ '%s qdisc del dev %s root' ]
         else:
