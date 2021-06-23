@@ -103,7 +103,8 @@ function version_ge {
 }
 
 # Attempt to detect Python version
-PYTHON=${PYTHON:-python}
+# PYTHON=${PYTHON:-python}
+PYTHON=${PYTHON:-python3}
 PRINTVERSION='import sys; print(sys.version_info)'
 PYTHON_VERSION=unknown
 for python in $PYTHON python2 python3; do
@@ -198,6 +199,13 @@ function mn_deps {
         $install cgroup-tools || $install cgroup-bin
     fi
 
+    echo "Installing Mininet core"
+    pushd $MININET_DIR/mininet
+    sudo PYTHON=${PYTHON} make install
+    popd
+}
+
+function mn_deps_light {
     echo "Installing Mininet core"
     pushd $MININET_DIR/mininet
     sudo PYTHON=${PYTHON} make install
@@ -871,7 +879,7 @@ if [ $# -eq 0 ]
 then
     all
 else
-    while getopts 'abcdefhikmnprs:tvV:wxy03' OPTION
+    while getopts 'abcdefhikmnNprs:tvV:wxy03' OPTION
     do
       case $OPTION in
       a)    all;;
@@ -889,6 +897,7 @@ else
       k)    kernel;;
       m)    modprobe;;
       n)    mn_deps;;
+      N)    mn_deps_light;;
       p)    pox;;
       r)    remove_ovs;;
       s)    mkdir -p $OPTARG; # ensure the directory is created

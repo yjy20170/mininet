@@ -437,7 +437,11 @@ class Mininet( object ):
             info( host.name + ' ' )
             intf = host.defaultIntf()
             if intf:
-                host.configDefault()
+                # what if IP is configured in addLink?
+                if intf.IP():
+                    host.configDefault( ip=None )
+                else:
+                    host.configDefault()
             else:
                 # Don't configure nonexistent intf
                 host.configDefault( ip=None, mac=None )
@@ -476,6 +480,7 @@ class Mininet( object ):
 
         info( '*** Adding hosts:\n' )
         for hostName in topo.hosts():
+            print('Adding hosts %s'%hostName)
             self.addHost( hostName, **topo.nodeInfo( hostName ) )
             info( hostName + ' ' )
 
@@ -509,7 +514,9 @@ class Mininet( object ):
         if self.inNamespace:
             self.configureControlNetwork()
         info( '*** Configuring hosts\n' )
+
         self.configHosts()
+
         if self.xterms:
             self.startTerms()
         if self.autoStaticArp:
