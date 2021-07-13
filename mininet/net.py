@@ -480,7 +480,7 @@ class Mininet( object ):
 
         info( '*** Adding hosts:\n' )
         for hostName in topo.hosts():
-            print('Adding hosts %s'%hostName)
+            #print('Adding hosts %s'%hostName)
             self.addHost( hostName, **topo.nodeInfo( hostName ) )
             info( hostName + ' ' )
 
