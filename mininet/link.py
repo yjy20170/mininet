@@ -315,10 +315,6 @@ class TCIntf( Intf ):
                              netemargs ]
                     parent = ' parent 10:1 '
             else:
-                delay = None
-                jitter = None
-                loss = None
-                max_queue_size = 10
                 
                 tcoutput = intf.tc( '%s qdisc show dev %s' )
                 texts = tcoutput.split(parent)[1].strip().split(' ')
@@ -388,7 +384,6 @@ class TCIntf( Intf ):
 
         # Support old names for parameters
         gro = not params.pop( 'disable_gro', not gro )
-
         result = Intf.config( self, **params)
 
         def on( isOn ):
@@ -511,7 +506,6 @@ class Link( object ):
             cls1 = intf
         if not cls2:
             cls2 = intf
-
         intf1 = cls1( name=intfName1, node=node1,
                       link=self, mac=addr1, **params1  )
         intf2 = cls2( name=intfName2, node=node2,
