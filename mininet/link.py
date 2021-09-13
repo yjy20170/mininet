@@ -302,6 +302,44 @@ class TCIntf( Intf ):
             error( 'Bad loss percentage', loss, '%%\n' )
         else:
             if not is_change:
+                firstTime = True
+            else:
+
+                tcoutput = intf.tc( '%s qdisc show dev %s' )
+                if tcoutput=="":
+                    firstTime = True
+                else:
+                    firstTime = False
+                    texts = tcoutput.split(parent)[1].strip().split(' ')
+                    ptr = 0
+                    if texts[ptr] == 'delay':
+                        if delay == None:
+                            delay = texts[ptr+1]
+                        ptr += 2
+                    if texts[ptr] not in ['loss','limit']:
+                        if jitter == None:
+                            jitter = texts[ptr]
+                        ptr += 1
+                    if texts[ptr] == 'loss':
+                        if loss == None:
+                            loss = float(texts[ptr+1])
+                        ptr += 2
+                    if texts[ptr] == 'limit':
+                        if max_queue_size == None:
+                            max_queue_size = int(texts[ptr+1])
+                        ptr += 2
+                    
+                    netemargs = '%s%s%s%s' % (
+                        'delay %s ' % delay if delay is not None else '',
+                        '%s ' % jitter if jitter is not None else '',
+                        'loss %.5f ' % loss if (loss is not None and loss > 0) else '',
+                        'limit %d' % max_queue_size if max_queue_size is not None else '' )
+                        
+                    cmds = [ '%s qdisc change dev %s ' + parent +
+                            ' handle 10: netem ' +
+                            netemargs ]
+                    parent = ' parent 10:1 '
+            if firstTime:
                 # Delay/jitter/loss/max queue size
                 netemargs = '%s%s%s%s' % (
                     'delay %s ' % delay if delay is not None else '',
@@ -314,39 +352,6 @@ class TCIntf( Intf ):
                              ' handle 10: netem ' +
                              netemargs ]
                     parent = ' parent 10:1 '
-            else:
-                
-                tcoutput = intf.tc( '%s qdisc show dev %s' )
-                texts = tcoutput.split(parent)[1].strip().split(' ')
-                ptr = 0
-                if texts[ptr] == 'delay':
-                    if delay == None:
-                        delay = texts[ptr+1]
-                    ptr += 2
-                if texts[ptr] not in ['loss','limit']:
-                    if jitter == None:
-                        jitter = texts[ptr]
-                    ptr += 1
-                if texts[ptr] == 'loss':
-                    if loss == None:
-                        loss = float(texts[ptr+1])
-                    ptr += 2
-                if texts[ptr] == 'limit':
-                    if max_queue_size == None:
-                        max_queue_size = int(texts[ptr+1])
-                    ptr += 2
-                
-                netemargs = '%s%s%s%s' % (
-                    'delay %s ' % delay if delay is not None else '',
-                    '%s ' % jitter if jitter is not None else '',
-                    'loss %.5f ' % loss if (loss is not None and loss > 0) else '',
-                    'limit %d' % max_queue_size if max_queue_size is not None else '' )
-                    
-                cmds = [ '%s qdisc change dev %s ' + parent +
-                         ' handle 10: netem ' +
-                         netemargs ]
-                parent = ' parent 10:1 '
-             
         return cmds, parent
 
     def getDelayCmdsOld(self, parent=None):

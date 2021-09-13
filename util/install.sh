@@ -879,7 +879,7 @@ if [ $# -eq 0 ]
 then
     all
 else
-    while getopts 'abcdefhikmnNprs:tvV:wxy03' OPTION
+    while getopts 'abcdefhikmnlprs:tvV:wxy03' OPTION
     do
       case $OPTION in
       a)    all;;
@@ -897,7 +897,7 @@ else
       k)    kernel;;
       m)    modprobe;;
       n)    mn_deps;;
-      N)    mn_deps_light;;
+      l)    mn_deps_light;;
       p)    pox;;
       r)    remove_ovs;;
       s)    mkdir -p $OPTARG; # ensure the directory is created
