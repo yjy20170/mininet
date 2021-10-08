@@ -513,6 +513,7 @@ class Node( object ):
         return connections
 
     def deleteIntfs( self, checkName=True ):
+        print("deleteIntfs")
         """Delete all of our interfaces.
            checkName: only delete interfaces that contain our name"""
         # In theory the interfaces should go away after we shut down.
@@ -1266,11 +1267,11 @@ class OVSSwitch( Switch ):
                 switch.batch = False
         if cmds:
             run( cmds, shell=True )
-        # Reapply link config if necessary...
-        for switch in switches:
-            for intf in switch.intfs.values():
-                if isinstance( intf, TCIntf ):
-                    intf.config( **intf.params )
+        # # Reapply link config if necessary...
+        # for switch in switches:
+        #     for intf in switch.intfs.values():
+        #         if isinstance( intf, TCIntf ):
+        #             intf.config( **intf.params )
         return switches
 
     def stop( self, deleteIntfs=True ):

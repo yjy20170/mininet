@@ -408,7 +408,7 @@ class Mininet( object ):
         return link
 
     def delLink( self, link ):
-        "Remove a link from this network"
+        print("Remove a link from this network")
         link.delete()
         self.links.remove( link )
 

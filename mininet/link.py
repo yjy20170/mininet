@@ -304,30 +304,32 @@ class TCIntf( Intf ):
             if not is_change:
                 firstTime = True
             else:
-
                 tcoutput = intf.tc( '%s qdisc show dev %s' )
+                # print('--------- delayCmds ----------')
+                # print(tcoutput)
+                # print('------------------------------')
                 if tcoutput=="":
                     firstTime = True
                 else:
                     firstTime = False
-                    texts = tcoutput.split(parent)[1].strip().split(' ')
-                    ptr = 0
-                    if texts[ptr] == 'delay':
-                        if delay == None:
-                            delay = texts[ptr+1]
-                        ptr += 2
-                    if texts[ptr] not in ['loss','limit']:
-                        if jitter == None:
-                            jitter = texts[ptr]
-                        ptr += 1
-                    if texts[ptr] == 'loss':
-                        if loss == None:
-                            loss = float(texts[ptr+1])
-                        ptr += 2
-                    if texts[ptr] == 'limit':
-                        if max_queue_size == None:
-                            max_queue_size = int(texts[ptr+1])
-                        ptr += 2
+                    try:
+                        texts = tcoutput.split(parent)[1].strip().split(' ')
+                    except:
+                        raise Exception( "tcoutput: ",tcoutput )
+                    for idxWord in range(len(texts)):
+                        if texts[idxWord] == 'delay':
+                            if delay == None:
+                                delay = texts[idxWord+1]
+                            if idxWord+2 < len(texts) \
+                                    and texts[idxWord+2] not in ['loss','limit'] \
+                                    and jitter == None:
+                                jitter = texts[idxWord+2]
+                        elif texts[idxWord] == 'loss':
+                            if loss == None:
+                                loss = float(texts[idxWord+1])
+                        elif texts[idxWord] == 'limit':
+                            if max_queue_size == None:
+                                max_queue_size = int(texts[idxWord+1])
                     
                     netemargs = '%s%s%s%s' % (
                         'delay %s ' % delay if delay is not None else '',
@@ -362,7 +364,7 @@ class TCIntf( Intf ):
         "Execute tc command for our interface"
         c = cmd % (tc, self)  # Add in tc command and our name
         debug(" *** executing command: %s\n" % c)
-        # print("TCCOMMAND:"+c)
+        # print("TCCOMMAND: "+c)
         return self.cmd( c )
 
     # pylint: disable=arguments-differ
