@@ -311,37 +311,40 @@ class TCIntf( Intf ):
                 if tcoutput=="":
                     firstTime = True
                 else:
-                    firstTime = False
                     try:
                         texts = tcoutput.split(parent)[1].strip().split(' ')
+                        firstTime = False
                     except:
-                        raise Exception( "tcoutput: ",tcoutput )
-                    for idxWord in range(len(texts)):
-                        if texts[idxWord] == 'delay':
-                            if delay == None:
-                                delay = texts[idxWord+1]
-                            if idxWord+2 < len(texts) \
-                                    and texts[idxWord+2] not in ['loss','limit'] \
-                                    and jitter == None:
-                                jitter = texts[idxWord+2]
-                        elif texts[idxWord] == 'loss':
-                            if loss == None:
-                                loss = float(texts[idxWord+1])
-                        elif texts[idxWord] == 'limit':
-                            if max_queue_size == None:
-                                max_queue_size = int(texts[idxWord+1])
+                        # raise Exception( "tcoutput: ",tcoutput )
+                        firstTime = True
+            if not firstTime:
+                for idxWord in range(len(texts)):
+                    if texts[idxWord] == 'delay':
+                        if delay == None:
+                            delay = texts[idxWord+1]
+                        if idxWord+2 < len(texts) \
+                                and texts[idxWord+2] not in ['loss','limit'] \
+                                and jitter == None:
+                            jitter = texts[idxWord+2]
+                    elif texts[idxWord] == 'loss':
+                        if loss == None:
+                            # [:-1] to remove the '%' at the end
+                            loss = float(texts[idxWord+1][:-1])
+                    elif texts[idxWord] == 'limit':
+                        if max_queue_size == None:
+                            max_queue_size = int(texts[idxWord+1])
+                
+                netemargs = '%s%s%s%s' % (
+                    'delay %s ' % delay if delay is not None else '',
+                    '%s ' % jitter if jitter is not None else '',
+                    'loss %.5f ' % loss if (loss is not None and loss > 0) else '',
+                    'limit %d' % max_queue_size if max_queue_size is not None else '' )
                     
-                    netemargs = '%s%s%s%s' % (
-                        'delay %s ' % delay if delay is not None else '',
-                        '%s ' % jitter if jitter is not None else '',
-                        'loss %.5f ' % loss if (loss is not None and loss > 0) else '',
-                        'limit %d' % max_queue_size if max_queue_size is not None else '' )
-                        
-                    cmds = [ '%s qdisc change dev %s ' + parent +
-                            ' handle 10: netem ' +
-                            netemargs ]
-                    parent = ' parent 10:1 '
-            if firstTime:
+                cmds = [ '%s qdisc change dev %s ' + parent +
+                        ' handle 10: netem ' +
+                        netemargs ]
+                parent = ' parent 10:1 '
+            else:
                 # Delay/jitter/loss/max queue size
                 netemargs = '%s%s%s%s' % (
                     'delay %s ' % delay if delay is not None else '',
