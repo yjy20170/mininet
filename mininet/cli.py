@@ -40,6 +40,7 @@ from mininet.log import info, output, error
 from mininet.term import makeTerms, runX11
 from mininet.util import ( quietRun, dumpNodeConnections,
                            dumpPorts )
+import mininet.node
 
 class CLI( Cmd ):
     "Simple command-line interface to talk to nodes."
@@ -288,17 +289,20 @@ class CLI( Cmd ):
 
     def do_xterm( self, line, term='xterm' ):
         """Spawn xterm(s) for the given node(s).
-           Usage: xterm node1 node2 ..."""
+           Usage: xterm( node1 node2 ...)"""
         args = line.split()
         if not args:
-            error( 'usage: %s node1 node2 ...\n' % term )
-        else:
-            for arg in args:
-                if arg not in self.mn:
-                    error( "node '%s' not in network\n" % arg )
-                else:
-                    node = self.mn[ arg ]
-                    self.mn.terms += makeTerms( [ node ], term = term )
+            args = []
+            for node in self.mn.values():
+                if not (isinstance(node,mininet.node.Switch) or isinstance(node,mininet.node.Controller)):
+                    args.append(node.name)
+        for arg in args:
+            if arg not in self.mn:
+                error( "node '%s' not in network\n" % arg )
+            else:
+                node = self.mn[ arg ]
+                self.mn.terms += makeTerms( [ node ], term = term )
+                time.sleep(0.1)
 
     def do_x( self, line ):
         """Create an X11 tunnel to the given node,
