@@ -29,6 +29,7 @@ from subprocess import call
 from cmd import Cmd
 from os import isatty
 from select import poll, POLLIN
+# import queue
 import select
 import errno
 import sys
@@ -41,6 +42,26 @@ from mininet.term import makeTerms, runX11
 from mininet.util import ( quietRun, dumpNodeConnections,
                            dumpPorts )
 import mininet.node
+
+# class MyStdIn:
+#     def __init__(self):
+#         self.inputQueue = queue.Queue()
+#     def input(self, string):
+#         self.inputQueue.put(string+'\r\n')
+#     def readline(self):
+#         timeout = 0.01 # 10ms
+#         while True:
+#             if not self.inputQueue.empty():
+#                 return self.inputQueue.get(block=False)
+#             else:
+#                 rlist, _, _ = select.select([sys.stdin], [], [], timeout)
+#                 if rlist:
+#                     s = sys.stdin.readline()
+#                     return s
+#                 else:
+#                     continue
+#     def fileno(self) -> int:
+#         return sys.stdin.fileno()
 
 class CLI( Cmd ):
     "Simple command-line interface to talk to nodes."
@@ -60,6 +81,9 @@ class CLI( Cmd ):
         self.inPoller = poll()
         self.inPoller.register( stdin )
         self.inputFile = script
+
+        # if isinstance(stdin,MyStdIn):
+        #     self.use_rawinput = 0
         Cmd.__init__( self, stdin=stdin, **kwargs )
         info( '*** Starting CLI:\n' )
 
@@ -68,7 +92,7 @@ class CLI( Cmd ):
             return
 
         self.initReadline()
-        self.run()
+        # self.run()
 
     readlineInited = False
 
@@ -100,6 +124,7 @@ class CLI( Cmd ):
                     pass
             atexit.register( writeHistory )
 
+
     def run( self ):
         "Run our cmdloop(), catching KeyboardInterrupt"
         while True:
@@ -119,7 +144,7 @@ class CLI( Cmd ):
                 # pylint: disable=broad-except
                 try:
                     output( '\nKeyboardInterrupt\n' )
-                    return self.do_exit("")
+                    return
                 except Exception:
                     pass
                 # pylint: enable=broad-except

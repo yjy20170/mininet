@@ -97,7 +97,7 @@ from time import sleep
 from itertools import chain, groupby
 from math import ceil
 
-from mininet.cli import CLI
+from mininet.cli import CLI # , MyStdIn
 from mininet.log import info, error, debug, output, warn
 from mininet.node import ( Node, Host, OVSKernelSwitch, DefaultController,
                            Controller )
@@ -107,6 +107,7 @@ from mininet.util import ( quietRun, fixLimits, numCores, ensureRoot,
                            macColonHex, ipStr, ipParse, netParse, ipAdd,
                            waitListening, BaseString )
 from mininet.term import cleanUpScreens, makeTerms
+
 
 # Mininet version: should be consistent with README and LICENSE
 VERSION = "2.3.0"
@@ -170,6 +171,8 @@ class Mininet( object ):
         self.nameToNode = {}  # name to Node (Host/Switch) objects
 
         self.terms = []  # list of spawned xterm processes
+
+        self.cli = None
 
         Mininet.init()  # Initialize Mininet if necessary
 
@@ -925,12 +928,13 @@ class Mininet( object ):
                 if result:
                     error( 'link dst status change failed: %s\n' % result )
 
-    def interact( self ):
+    def enterCli( self ):
         "Start network and run our simple CLI."
         self.start()
-        result = CLI( self )
-        self.stop()
-        return result
+        self.cli = CLI( self )
+        self.cli.run()
+
+
 
     inited = False
 
