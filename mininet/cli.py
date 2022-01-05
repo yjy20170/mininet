@@ -118,8 +118,8 @@ class CLI( Cmd ):
                 # Output a message - unless it's also interrupted
                 # pylint: disable=broad-except
                 try:
-                    output( '\KeyboardInterrupt\n' )
-                    self.do_exit("")
+                    output( '\nKeyboardInterrupt\n' )
+                    return self.do_exit("")
                 except Exception:
                     pass
                 # pylint: enable=broad-except
