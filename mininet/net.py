@@ -937,7 +937,7 @@ class Mininet( object ):
 
     def openXterm( self, args=[], term = 'xterm'):
         if args==[]:
-            for node in self.values():
+            for node in self.values()[::-1]:
                 if not (isinstance(node, Switch) or isinstance(node, Controller)):
                     args.append(node.name)
         for arg in args:
