@@ -91,6 +91,7 @@ import re
 import select
 import signal
 import random
+import time
 
 from sys import exit  # pylint: disable=redefined-builtin
 from time import sleep
@@ -100,7 +101,7 @@ from math import ceil
 from mininet.cli import CLI # , MyStdIn
 from mininet.log import info, error, debug, output, warn
 from mininet.node import ( Node, Host, OVSKernelSwitch, DefaultController,
-                           Controller )
+                           Controller, Switch )
 from mininet.nodelib import NAT
 from mininet.link import Link, Intf
 from mininet.util import ( quietRun, fixLimits, numCores, ensureRoot,
@@ -934,7 +935,18 @@ class Mininet( object ):
         self.cli = CLI( self )
         self.cli.run()
 
-
+    def openXterm( self, args=[], term = 'xterm'):
+        if args==[]:
+            for node in self.values():
+                if not (isinstance(node, Switch) or isinstance(node, Controller)):
+                    args.append(node.name)
+        for arg in args:
+            if arg not in self:
+                error( "node '%s' not in network\n" % arg )
+            else:
+                node = self[ arg ]
+                self.terms += makeTerms( [ node ], term = term )
+                time.sleep(0.1)
 
     inited = False
 

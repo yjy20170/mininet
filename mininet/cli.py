@@ -38,10 +38,9 @@ import os
 import atexit
 
 from mininet.log import info, output, error
-from mininet.term import makeTerms, runX11
+from mininet.term import runX11
 from mininet.util import ( quietRun, dumpNodeConnections,
                            dumpPorts )
-import mininet.node
 
 # class MyStdIn:
 #     def __init__(self):
@@ -317,18 +316,8 @@ class CLI( Cmd ):
         """Spawn xterm(s) for the given node(s).
            Usage: xterm( node1 node2 ...)"""
         args = line.split()
-        if not args:
-            args = []
-            for node in self.mn.values():
-                if not (isinstance(node,mininet.node.Switch) or isinstance(node,mininet.node.Controller)):
-                    args.append(node.name)
-        for arg in args:
-            if arg not in self.mn:
-                error( "node '%s' not in network\n" % arg )
-            else:
-                node = self.mn[ arg ]
-                self.mn.terms += makeTerms( [ node ], term = term )
-                time.sleep(0.1)
+        self.mn.openXterm(args, term)
+            
 
     def do_x( self, line ):
         """Create an X11 tunnel to the given node,
