@@ -662,7 +662,7 @@ class Mininet( object ):
         sent, received = int( m.group( 1 ) ), int( m.group( 2 ) )
         return sent, received
 
-    def ping( self, hosts=None, timeout=None ):
+    def ping( self, hosts=None, timeout=None, outputer=output ):
         """Ping between all specified hosts.
            hosts: list of hosts
            timeout: time to wait for a response, as string
@@ -673,9 +673,9 @@ class Mininet( object ):
         ploss = None
         if not hosts:
             hosts = self.hosts
-            output( '*** Ping: testing ping reachability\n' )
+            outputer( '*** Ping: testing ping reachability\n' )
         for node in hosts:
-            output( '%s -> ' % node.name )
+            outputer( '%s -> ' % node.name )
             for dest in hosts:
                 if node != dest:
                     opts = ''
@@ -694,16 +694,16 @@ class Mininet( object ):
                         node.cmdPrint( 'route' )
                         exit( 1 )
                     lost += sent - received
-                    output( ( '%s ' % dest.name ) if received else 'X ' )
-            output( '\n' )
+                    outputer( ( '%s ' % dest.name ) if received else 'X ' )
+            outputer( '\n' )
         if packets > 0:
             ploss = 100.0 * lost / packets
             received = packets - lost
-            output( "*** Results: %i%% dropped (%d/%d received)\n" %
+            outputer( "*** Results: %i%% dropped (%d/%d received)\n" %
                     ( ploss, received, packets ) )
         else:
             ploss = 0
-            output( "*** Warning: No packets sent\n" )
+            outputer( "*** Warning: No packets sent\n" )
         return ploss
 
     @staticmethod
