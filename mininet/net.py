@@ -946,7 +946,7 @@ class Mininet( object ):
             else:
                 node = self[ arg ]
                 self.terms += makeTerms( [ node ], term = term )
-                time.sleep(0.1)
+                time.sleep(0.05)
 
     inited = False
 
