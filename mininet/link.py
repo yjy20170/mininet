@@ -293,9 +293,9 @@ class TCIntf( Intf ):
         return cmds, parent
 
 
-    @staticmethod
-    def delayCmds( parent = ' parent 5:1 ', delay=None, jitter=None,
-                   loss=None, max_queue_size=None, is_change=False,intf=None ) :
+    # @staticmethod
+    def delayCmds( self, parent = ' parent 5:1 ', delay=None, jitter=None,
+                   loss=None, max_queue_size=None, is_change=False ) :
         "Internal method: return tc commands for delay and loss"
         cmds = []
         if loss and ( loss < 0 or loss > 100 ):
@@ -304,7 +304,7 @@ class TCIntf( Intf ):
             if not is_change:
                 firstTime = True
             else:
-                tcoutput = intf.tc( '%s qdisc show dev %s' )
+                tcoutput = self.tc( '%s qdisc show dev %s' )
                 # print('--------- delayCmds ----------')
                 # print(tcoutput)
                 # print('------------------------------')

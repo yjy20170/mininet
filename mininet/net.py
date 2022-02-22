@@ -930,14 +930,14 @@ class Mininet( object ):
                     error( 'link dst status change failed: %s\n' % result )
 
     def enterCli( self ):
-        "Start network and run our simple CLI."
-        self.start()
+        "run our simple CLI."
+        # self.start()
         self.cli = CLI( self )
         self.cli.run()
 
     def openXterm( self, args=[], term = 'xterm'):
         if args==[]:
-            for node in self.values()[::-1]:
+            for node in self.values():
                 if not (isinstance(node, Switch) or isinstance(node, Controller)):
                     args.append(node.name)
         for arg in args:

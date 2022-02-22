@@ -321,6 +321,7 @@ class Node( object ):
             cmd += ' printf "\\001%d\\012" $! '
         elif printPid and not isShellBuiltin( cmd ):
             cmd = 'mnexec -p ' + cmd
+        
         self.write( cmd + '\n' )
         self.lastPid = None
         self.waiting = True
